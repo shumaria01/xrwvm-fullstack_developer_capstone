@@ -70,18 +70,14 @@ def registration(request):
         })
 
 
-# ✅ Updated for all dealerships and filtered by state
 @csrf_exempt
 def get_dealerships(request, state="All"):
     endpoint = "/fetchDealers" if state == "All" else f"/fetchDealers/{state}"
     dealerships = get_request(endpoint)
-    print("DEBUG >>> Dealerships returned from cloud function:", dealerships)  # 👈 Add this
-
+    print("DEBUG >>> Dealerships returned from cloud function:", dealerships)
     return JsonResponse({"status": 200, "dealers": dealerships})
 
 
-
-# ✅ Individual dealer by ID
 @csrf_exempt
 def get_dealer_details(request, dealer_id):
     try:
@@ -109,6 +105,7 @@ def add_review(request):
             })
     return JsonResponse({"status": 405, "message": "Method Not Allowed"})
 
+
 @csrf_exempt
 def get_dealer_reviews(request, dealer_id):
     try:
@@ -127,7 +124,6 @@ def get_dealer_reviews(request, dealer_id):
                 review_detail['sentiment'] = 'neutral'
 
         return JsonResponse({"status": 200, "reviews": reviews})
-
     except Exception as e:
         logger.error(f"Error fetching dealer reviews: {e}")
         return JsonResponse({"status": 500, "error": str(e)})

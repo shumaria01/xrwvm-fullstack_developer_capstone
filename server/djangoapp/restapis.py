@@ -14,13 +14,14 @@ sentiment_analyzer_url = os.getenv(
 
 
 def get_request(endpoint, params=None):
-    url = f"https://shumariashah-3030.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai{endpoint}"
+    base_url = "https://shumariashah-3030.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai"
+    url = f"{base_url}{endpoint}"
     print(f"GET from {url}")
     try:
         response = requests.get(url, params=params)
         response.raise_for_status()
         json_data = response.json()
-        return json_data  # ✅ This should be a list of dealer dicts
+        return json_data
     except Exception as e:
         print(f"ERROR while calling {url}: {e}")
         return []
@@ -34,7 +35,6 @@ def analyze_review_sentiments(text):
     except Exception as err:
         print(f"Unexpected error: {err}")
         return None
-
 
 
 def post_review(data_dict):
