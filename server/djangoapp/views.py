@@ -51,7 +51,10 @@ def registration(request):
     email = data['email']
     try:
         User.objects.get(username=username)
-        return JsonResponse({"userName": username, "error": "Already Registered"})
+        return JsonResponse({
+            "userName": username,
+            "error": "Already Registered"
+        })
     except User.DoesNotExist:
         user = User.objects.create_user(
             username=username,
@@ -61,7 +64,10 @@ def registration(request):
             email=email
         )
         login(request, user)
-        return JsonResponse({"userName": username, "status": "Authenticated"})
+        return JsonResponse({
+            "userName": username,
+            "status": "Authenticated"
+        })
 
 
 def get_dealerships(request, state="All"):
@@ -83,7 +89,10 @@ def add_review(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            logger.info("Review submission data: %s", json.dumps(data, indent=2))
+            logger.info(
+                "Review submission data: %s",
+                json.dumps(data, indent=2)
+            )
             post_review(data)  # This function must send to cloud function
             return JsonResponse({"status": 200})
         except Exception as e:
@@ -92,7 +101,10 @@ def add_review(request):
                 "status": 500,
                 "message": f"Error in posting review: {str(e)}"
             })
-    return JsonResponse({"status": 405, "message": "Method Not Allowed"})
+    return JsonResponse({
+        "status": 405,
+        "message": "Method Not Allowed"
+    })
 
 
 def get_dealer_reviews(request, dealer_id):
@@ -102,7 +114,9 @@ def get_dealer_reviews(request, dealer_id):
         for review_detail in reviews:
             try:
                 response = analyze_review_sentiments(review_detail['review'])
-                review_detail['sentiment'] = response.get('label', 'neutral') if response else 'neutral'
+                review_detail['sentiment'] = (
+                    response.get('label', 'neutral') if response else 'neutral'
+                )
             except Exception as e:
                 logger.warning(f"Sentiment analysis failed: {e}")
                 review_detail['sentiment'] = 'neutral'
