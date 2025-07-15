@@ -79,34 +79,6 @@ def get_dealerships(request, state="All"):
 
 
 @csrf_exempt
-def get_dealer_details(request, dealer_id):
-    try:
-        endpoint = f"/fetchDealer/{dealer_id}"
-        dealership = get_request(endpoint)
-        return JsonResponse({"status": 200, "dealer": dealership})
-    except Exception as e:
-        logger.error(f"Failed to fetch dealer details: {e}")
-        return JsonResponse({"status": 500, "error": str(e)})
-
-
-@csrf_exempt
-def add_review(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            logger.info("Review submission data: %s", json.dumps(data, indent=2))
-            post_review(data)
-            return JsonResponse({"status": 200})
-        except Exception as e:
-            logger.error("Review post failed: %s", str(e))
-            return JsonResponse({
-                "status": 500,
-                "message": f"Error in posting review: {str(e)}"
-            })
-    return JsonResponse({"status": 405, "message": "Method Not Allowed"})
-
-
-@csrf_exempt
 def get_dealer_reviews(request, dealer_id):
     try:
         endpoint = f"/fetchReviews/dealer/{dealer_id}"
@@ -117,7 +89,8 @@ def get_dealer_reviews(request, dealer_id):
                 review_text = review_detail.get("review", "")
                 response = analyze_review_sentiments(review_text)
                 review_detail['sentiment'] = (
-                    response.get('label', 'neutral') if response else 'neutral'
+                    response.get('label', 'neutral')
+                    if response else 'neutral'
                 )
             except Exception as e:
                 logger.warning(f"Sentiment analysis failed: {e}")

@@ -5,8 +5,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 backend_url = os.getenv(
-    'backend_url', default="http://localhost:3030"
+    'backend_url',
+    default="http://localhost:3030"
 )
+
 sentiment_analyzer_url = os.getenv(
     'sentiment_analyzer_url',
     default="http://localhost:5050/"
@@ -14,7 +16,10 @@ sentiment_analyzer_url = os.getenv(
 
 
 def get_request(endpoint, params=None):
-    base_url = "https://shumariashah-3030.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai"
+    base_url = (
+        "https://shumariashah-3030.theiadockernext-0-labs-prod-theiak8s-4-"
+        "tor01.proxy.cognitiveclass.ai"
+    )
     url = f"{base_url}{endpoint}"
     print(f"GET from {url}")
     try:
