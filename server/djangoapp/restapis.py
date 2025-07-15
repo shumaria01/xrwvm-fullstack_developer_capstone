@@ -2,6 +2,8 @@
 import requests
 import os
 from dotenv import load_dotenv
+import json
+
 
 load_dotenv()
 
@@ -13,21 +15,18 @@ sentiment_analyzer_url = os.getenv(
     default="http://localhost:5050/"
 )
 
-
-def get_request(endpoint, **kwargs):
-    params = ""
-    if kwargs:
-        for key, value in kwargs.items():
-            params += key + "=" + value + "&"
-
-    request_url = backend_url + endpoint + "?" + params
-    print(f"GET from {request_url}")
+def get_request(endpoint, params=None):
+    url = f"https://shumariashah-3030.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai{endpoint}"
+    print(f"GET from {url}")
     try:
-        response = requests.get(request_url)
-        return response.json()
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        json_data = response.json()
+        return json_data  # ✅ This should be a list of dealer dicts
     except Exception as e:
-        print(f"Error: {e}")
-        return None
+        print(f"ERROR while calling {url}: {e}")
+        return []
+
 
 
 def analyze_review_sentiments(text):

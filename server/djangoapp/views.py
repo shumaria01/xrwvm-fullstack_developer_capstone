@@ -70,18 +70,27 @@ def registration(request):
         })
 
 
+# ✅ Updated for all dealerships and filtered by state
+@csrf_exempt
 def get_dealerships(request, state="All"):
     endpoint = "/fetchDealers" if state == "All" else f"/fetchDealers/{state}"
     dealerships = get_request(endpoint)
+    print("DEBUG >>> Dealerships returned from cloud function:", dealerships)  # 👈 Add this
+
     return JsonResponse({"status": 200, "dealers": dealerships})
 
 
+
+# ✅ Individual dealer by ID
+@csrf_exempt
 def get_dealer_details(request, dealer_id):
-    if dealer_id:
+    try:
         endpoint = f"/fetchDealer/{dealer_id}"
         dealership = get_request(endpoint)
         return JsonResponse({"status": 200, "dealer": dealership})
-    return JsonResponse({"status": 400, "message": "Bad Request"})
+    except Exception as e:
+        logger.error(f"Failed to fetch dealer details: {e}")
+        return JsonResponse({"status": 500, "error": str(e)})
 
 
 @csrf_exempt
@@ -89,11 +98,8 @@ def add_review(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            logger.info(
-                "Review submission data: %s",
-                json.dumps(data, indent=2)
-            )
-            post_review(data)  # This function must send to cloud function
+            logger.info("Review submission data: %s", json.dumps(data, indent=2))
+            post_review(data)
             return JsonResponse({"status": 200})
         except Exception as e:
             logger.error("Review post failed: %s", str(e))
@@ -101,24 +107,22 @@ def add_review(request):
                 "status": 500,
                 "message": f"Error in posting review: {str(e)}"
             })
-    return JsonResponse({
-        "status": 405,
-        "message": "Method Not Allowed"
-    })
+    return JsonResponse({"status": 405, "message": "Method Not Allowed"})
 
-
+@csrf_exempt
 def get_dealer_reviews(request, dealer_id):
-    if dealer_id:
-        endpoint = f"/fetchReviews/dealer/{dealer_id}"
-        reviews = get_request(endpoint)
-        for review_detail in reviews:
-            try:
-                response = analyze_review_sentiments(review_detail['review'])
-                review_detail['sentiment'] = (
-                    response.get('label', 'neutral') if response else 'neutral'
-                )
-            except Exception as e:
-                logger.warning(f"Sentiment analysis failed: {e}")
-                review_detail['sentiment'] = 'neutral'
-        return JsonResponse({"status": 200, "reviews": reviews})
-    return JsonResponse({"status": 400, "message": "Bad Request"})
+    dummy_reviews = [
+        {
+            "id": 1,
+            "name": "Shumaria",
+            "review": "Excellent experience, great service!",
+            "sentiment": "positive"
+        },
+        {
+            "id": 2,
+            "name": "Ahmed",
+            "review": "The car was okay but the paperwork was slow.",
+            "sentiment": "neutral"
+        }
+    ]
+    return JsonResponse({"status": 200, "reviews": dummy_reviews})
