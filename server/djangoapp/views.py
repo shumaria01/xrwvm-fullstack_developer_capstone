@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .restapis import get_request, analyze_review_sentiments, post_review
+from .restapis import get_request, analyze_review_sentiments
 from .populate import initiate
 from .models import CarMake, CarModel
 import logging
