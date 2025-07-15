@@ -111,18 +111,23 @@ def add_review(request):
 
 @csrf_exempt
 def get_dealer_reviews(request, dealer_id):
-    dummy_reviews = [
-        {
-            "id": 1,
-            "name": "Shumaria",
-            "review": "Excellent experience, great service!",
-            "sentiment": "positive"
-        },
-        {
-            "id": 2,
-            "name": "Ahmed",
-            "review": "The car was okay but the paperwork was slow.",
-            "sentiment": "neutral"
-        }
-    ]
-    return JsonResponse({"status": 200, "reviews": dummy_reviews})
+    try:
+        endpoint = f"/fetchReviews/dealer/{dealer_id}"
+        reviews = get_request(endpoint)
+
+        for review_detail in reviews:
+            try:
+                review_text = review_detail.get("review", "")
+                response = analyze_review_sentiments(review_text)
+                review_detail['sentiment'] = (
+                    response.get('label', 'neutral') if response else 'neutral'
+                )
+            except Exception as e:
+                logger.warning(f"Sentiment analysis failed: {e}")
+                review_detail['sentiment'] = 'neutral'
+
+        return JsonResponse({"status": 200, "reviews": reviews})
+
+    except Exception as e:
+        logger.error(f"Error fetching dealer reviews: {e}")
+        return JsonResponse({"status": 500, "error": str(e)})

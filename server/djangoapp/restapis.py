@@ -1,9 +1,6 @@
-
 import requests
 import os
 from dotenv import load_dotenv
-import json
-
 
 load_dotenv()
 
@@ -14,6 +11,7 @@ sentiment_analyzer_url = os.getenv(
     'sentiment_analyzer_url',
     default="http://localhost:5050/"
 )
+
 
 def get_request(endpoint, params=None):
     url = f"https://shumariashah-3030.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai{endpoint}"
@@ -28,7 +26,6 @@ def get_request(endpoint, params=None):
         return []
 
 
-
 def analyze_review_sentiments(text):
     request_url = sentiment_analyzer_url + "analyze/" + text
     try:
@@ -37,6 +34,7 @@ def analyze_review_sentiments(text):
     except Exception as err:
         print(f"Unexpected error: {err}")
         return None
+
 
 
 def post_review(data_dict):
